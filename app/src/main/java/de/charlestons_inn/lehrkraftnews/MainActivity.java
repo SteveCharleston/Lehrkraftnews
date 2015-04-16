@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.URL;
@@ -25,19 +27,31 @@ public class MainActivity extends ActionBarActivity {
     private static String lehrkraftnewsUrl =
             "http://fb6.beuth-hochschule.de/lehrkraftnews/message/";
 
+    private static List<LehrkraftnewsEntry> entries;
+
+    public static LehrkraftnewsAdapter getAdapter() {
+        return adapter;
+    }
+
+    public static void setAdapter(LehrkraftnewsAdapter adapter) {
+        MainActivity.adapter = adapter;
+    }
+
+    private static LehrkraftnewsAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        entries = new ArrayList<LehrkraftnewsEntry>();
 
-        //new LehrkraftnewsFetcher().execute(lehrkraftnewsUrl);
+        new LehrkraftnewsFetcher().execute(lehrkraftnewsUrl);
 
-        List<LehrkraftnewsEntry> entries = getDummyData();
 
         ListView lehrkraftnewsEntries
                 = (ListView) findViewById(R.id.lehrkraftnews_entries);
 
-        LehrkraftnewsAdapter adapter = new LehrkraftnewsAdapter(this, entries);
+        adapter = new LehrkraftnewsAdapter(this, entries);
         lehrkraftnewsEntries.setAdapter(adapter);
     }
 
@@ -65,35 +79,46 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public List<LehrkraftnewsEntry> getDummyData() {
-        ArrayList<LehrkraftnewsEntry> entries
+        ArrayList<LehrkraftnewsEntry> newsEntries
                 = new ArrayList<LehrkraftnewsEntry>();
 
         LehrkraftnewsEntry first = new LehrkraftnewsEntry();
         first.setValidityDate("01.01.2015");
         first.setSource("B. Wayne");
         first.setMessage("To the Batcave");
-        entries.add(first);
+        newsEntries.add(first);
 
         LehrkraftnewsEntry second = new LehrkraftnewsEntry();
         second.setValidityDate("02.01.2015");
         second.setSource("B. Banner");
         second.setMessage("You wouldn't like me when I'm angry");
-        entries.add(second);
+        newsEntries.add(second);
 
         LehrkraftnewsEntry third = new LehrkraftnewsEntry();
         third.setValidityDate("03.01.2015");
         third.setSource("P. Parker");
         third.setMessage("My spider senses are Tingeling");
-        entries.add(third);
+        newsEntries.add(third);
 
+        return newsEntries;
+    }
+
+    public static List<LehrkraftnewsEntry> getEntries() {
         return entries;
     }
 
+    public static void setEntries(List<LehrkraftnewsEntry> entries) {
+        MainActivity.entries = entries;
+    }
+
     private class LehrkraftnewsFetcher
-            extends AsyncTask<String, Integer, Document> {
+            extends AsyncTask<String, Integer, List<LehrkraftnewsEntry>> {
         //public static String TAG = MainActivity.TAG;
 
-        protected Document doInBackground(String... url) {
+        protected List<LehrkraftnewsEntry> doInBackground(String... url) {
+            ArrayList<LehrkraftnewsEntry> newsEntries
+                    = new ArrayList<LehrkraftnewsEntry>();
+
             Document doc = new Document(url[0]);
 
             try {
@@ -103,12 +128,41 @@ public class MainActivity extends ActionBarActivity {
                 Log.d(TAG, "oh noez!");
             }
 
-            return doc;
+            Elements pageEntries = doc.select("tr");
+
+            // throw away first entry
+            pageEntries.remove(0);
+
+            for (Element pageEntry : pageEntries) {
+                String validity = pageEntry.getElementsByClass("date_column")
+                        .get(0)
+                        .text();
+
+                String source = pageEntry.getElementsByClass("person_column")
+                        .get(0)
+                        .text();
+
+                String message = pageEntry.getElementsByClass("person_column")
+                        .get(0)
+                        .nextElementSibling()
+                        .text();
+
+                LehrkraftnewsEntry newsEntry = new LehrkraftnewsEntry();
+                newsEntry.setValidityDate(validity);
+                newsEntry.setSource(source);
+                newsEntry.setMessage(message);
+
+                newsEntries.add(newsEntry);
+            }
+
+            return newsEntries;
         }
 
         @Override
-        protected void onPostExecute(Document doc) {
-            super.onPostExecute(doc);
+        protected void onPostExecute(List<LehrkraftnewsEntry> newsEntries) {
+            super.onPostExecute(newsEntries);
+            getEntries().addAll(newsEntries);
+            getAdapter().notifyDataSetChanged();
             //TextView text = (TextView) findViewById(R.id.main_text);
             //text.setText(doc.toString());
         }

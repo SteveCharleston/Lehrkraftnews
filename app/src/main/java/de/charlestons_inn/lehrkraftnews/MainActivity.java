@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,34 +24,25 @@ import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
-    public static String TAG = "Lehrkraftnews";
-    private static String lehrkraftnewsUrl =
-            "http://fb6.beuth-hochschule.de/lehrkraftnews/message/";
 
+    public static int ENTRYURLTAG = 1;
+    private static String fb6Url = "http://fb6.beuth-hochschule.de";
     private static List<LehrkraftnewsEntry> entries;
-
-    public static LehrkraftnewsAdapter getAdapter() {
-        return adapter;
-    }
-
-    public static void setAdapter(LehrkraftnewsAdapter adapter) {
-        MainActivity.adapter = adapter;
-    }
-
     private static LehrkraftnewsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //noinspection Convert2Diamond
         entries = new ArrayList<LehrkraftnewsEntry>();
 
+        String lehrkraftnewsUrl = "http://fb6.beuth-hochschule.de/lehrkraftnews/message/";
         new LehrkraftnewsFetcher().execute(lehrkraftnewsUrl);
-
 
         ListView lehrkraftnewsEntries
                 = (ListView) findViewById(R.id.lehrkraftnews_entries);
-
         adapter = new LehrkraftnewsAdapter(this, entries);
         lehrkraftnewsEntries.setAdapter(adapter);
     }
@@ -79,6 +71,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public List<LehrkraftnewsEntry> getDummyData() {
+        //noinspection Convert2Diamond
         ArrayList<LehrkraftnewsEntry> newsEntries
                 = new ArrayList<LehrkraftnewsEntry>();
 
@@ -103,7 +96,7 @@ public class MainActivity extends ActionBarActivity {
         return newsEntries;
     }
 
-    public static List<LehrkraftnewsEntry> getEntries() {
+    private static List<LehrkraftnewsEntry> getEntries() {
         return entries;
     }
 
@@ -111,12 +104,24 @@ public class MainActivity extends ActionBarActivity {
         MainActivity.entries = entries;
     }
 
+    public void expandetMessage(View v) {
+        Log.d("Lehrkraftnews", v.getTag(R.id.URLENTRY).toString());
+    }
+
+    private static LehrkraftnewsAdapter getAdapter() {
+        return adapter;
+    }
+
+    public static void setAdapter(LehrkraftnewsAdapter adapter) {
+        MainActivity.adapter = adapter;
+    }
+
     private class LehrkraftnewsFetcher
             extends AsyncTask<String, Integer, List<LehrkraftnewsEntry>> {
         //public static String TAG = MainActivity.TAG;
 
         protected List<LehrkraftnewsEntry> doInBackground(String... url) {
-            ArrayList<LehrkraftnewsEntry> newsEntries
+            @SuppressWarnings("Convert2Diamond") ArrayList<LehrkraftnewsEntry> newsEntries
                     = new ArrayList<LehrkraftnewsEntry>();
 
             Document doc = new Document(url[0]);
@@ -125,6 +130,7 @@ public class MainActivity extends ActionBarActivity {
                 doc = Jsoup.connect(url[0]).get();
             } catch (IOException e) {
                 //e.printStackTrace();
+                String TAG = "Lehrkraftnews";
                 Log.d(TAG, "oh noez!");
             }
 
@@ -147,10 +153,13 @@ public class MainActivity extends ActionBarActivity {
                         .nextElementSibling()
                         .text();
 
+                String entryUrl = pageEntry.select("a").attr("href");
+
                 LehrkraftnewsEntry newsEntry = new LehrkraftnewsEntry();
                 newsEntry.setValidityDate(validity);
                 newsEntry.setSource(source);
                 newsEntry.setMessage(message);
+                newsEntry.setUrl(entryUrl);
 
                 newsEntries.add(newsEntry);
             }

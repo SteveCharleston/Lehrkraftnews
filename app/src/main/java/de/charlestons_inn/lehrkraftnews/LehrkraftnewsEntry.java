@@ -3,10 +3,11 @@ package de.charlestons_inn.lehrkraftnews;
 /**
  * Created by steven on 16.04.15.
  */
-public class LehrkraftnewsEntry {
+class LehrkraftnewsEntry {
     private String validityDate;
     private String source;
     private String message;
+    private String url;
 
     public LehrkraftnewsEntry() {
 
@@ -34,5 +35,13 @@ public class LehrkraftnewsEntry {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

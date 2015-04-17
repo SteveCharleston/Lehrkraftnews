@@ -13,10 +13,10 @@ import java.util.List;
 /**
  * Created by steven on 16.04.15.
  */
-public class LehrkraftnewsAdapter extends ArrayAdapter<LehrkraftnewsEntry> {
+class LehrkraftnewsAdapter extends ArrayAdapter<LehrkraftnewsEntry> {
 
-    private Context context;
-    private List<LehrkraftnewsEntry> entries;
+    private final Context context;
+    private final List<LehrkraftnewsEntry> entries;
 
     public LehrkraftnewsAdapter(Context context, List<LehrkraftnewsEntry> entries) {
         // call super class to define layout and list items
@@ -46,6 +46,8 @@ public class LehrkraftnewsAdapter extends ArrayAdapter<LehrkraftnewsEntry> {
         validity.setText(entries.get(position).getValidityDate());
         source.setText(entries.get(position).getSource());
         message.setText(entries.get(position).getMessage());
+
+        entry.setTag(R.id.URLENTRY, entries.get(position).getUrl());
 
         return entry;
     }

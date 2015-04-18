@@ -1,24 +1,13 @@
 package de.charlestons_inn.lehrkraftnews;
 
-import android.app.Activity;
-import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +28,7 @@ public class MainActivity extends ActionBarActivity {
         entries = new ArrayList<LehrkraftnewsEntry>();
 
         String lehrkraftnewsUrl = "http://fb6.beuth-hochschule.de/lehrkraftnews/message/";
-        new LehrkraftnewsFetcher().execute(lehrkraftnewsUrl);
+        new LehrkraftnewsFetcher(this).execute(lehrkraftnewsUrl);
 
         ListView lehrkraftnewsEntries
                 = (ListView) findViewById(R.id.lehrkraftnews_entries);
@@ -96,7 +85,7 @@ public class MainActivity extends ActionBarActivity {
         return newsEntries;
     }
 
-    private static List<LehrkraftnewsEntry> getEntries() {
+    public static List<LehrkraftnewsEntry> getEntries() {
         return entries;
     }
 
@@ -104,11 +93,13 @@ public class MainActivity extends ActionBarActivity {
         MainActivity.entries = entries;
     }
 
-    public void expandetMessage(View v) {
-        Log.d("Lehrkraftnews", v.getTag(R.id.URLENTRY).toString());
+    public void detailedMessage(View v) {
+        //Log.d("Lehrkraftnews", v.getTag(R.id.URLENTRY).toString());
+        String messageUrl = fb6Url + v.getTag(R.id.URLENTRY).toString();
+        new detailedLehrkraftnewsFetcher(this).execute(messageUrl);
     }
 
-    private static LehrkraftnewsAdapter getAdapter() {
+    public static LehrkraftnewsAdapter getAdapter() {
         return adapter;
     }
 
@@ -116,65 +107,5 @@ public class MainActivity extends ActionBarActivity {
         MainActivity.adapter = adapter;
     }
 
-    private class LehrkraftnewsFetcher
-            extends AsyncTask<String, Integer, List<LehrkraftnewsEntry>> {
-        //public static String TAG = MainActivity.TAG;
-
-        protected List<LehrkraftnewsEntry> doInBackground(String... url) {
-            @SuppressWarnings("Convert2Diamond") ArrayList<LehrkraftnewsEntry> newsEntries
-                    = new ArrayList<LehrkraftnewsEntry>();
-
-            Document doc = new Document(url[0]);
-
-            try {
-                doc = Jsoup.connect(url[0]).get();
-            } catch (IOException e) {
-                //e.printStackTrace();
-                String TAG = "Lehrkraftnews";
-                Log.d(TAG, "oh noez!");
-            }
-
-            Elements pageEntries = doc.select("tr");
-
-            // throw away first entry
-            pageEntries.remove(0);
-
-            for (Element pageEntry : pageEntries) {
-                String validity = pageEntry.getElementsByClass("date_column")
-                        .get(0)
-                        .text();
-
-                String source = pageEntry.getElementsByClass("person_column")
-                        .get(0)
-                        .text();
-
-                String message = pageEntry.getElementsByClass("person_column")
-                        .get(0)
-                        .nextElementSibling()
-                        .text();
-
-                String entryUrl = pageEntry.select("a").attr("href");
-
-                LehrkraftnewsEntry newsEntry = new LehrkraftnewsEntry();
-                newsEntry.setValidityDate(validity);
-                newsEntry.setSource(source);
-                newsEntry.setMessage(message);
-                newsEntry.setUrl(entryUrl);
-
-                newsEntries.add(newsEntry);
-            }
-
-            return newsEntries;
-        }
-
-        @Override
-        protected void onPostExecute(List<LehrkraftnewsEntry> newsEntries) {
-            super.onPostExecute(newsEntries);
-            getEntries().addAll(newsEntries);
-            getAdapter().notifyDataSetChanged();
-            //TextView text = (TextView) findViewById(R.id.main_text);
-            //text.setText(doc.toString());
-        }
-    }
 }
 

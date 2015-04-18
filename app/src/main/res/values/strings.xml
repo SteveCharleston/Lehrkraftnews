@@ -3,4 +3,9 @@
 
     <string name="action_settings">Settings</string>
     <item name="URLENTRY" type="id" />
+    <string name="title_activity_detailed_lehrkraftnews">
+        DetailedLehrkraftnewsActivity
+    </string>
+
+    <string name="hello_world">Hello world!</string>
 </resources>

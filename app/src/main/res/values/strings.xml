@@ -7,5 +7,8 @@
         DetailedLehrkraftnewsActivity
     </string>
 
+    <string name="filter">Filter:</string>
+    <string name="all_news">Alle Nachrichten</string>
+
     <string name="hello_world">Hello world!</string>
 </resources>

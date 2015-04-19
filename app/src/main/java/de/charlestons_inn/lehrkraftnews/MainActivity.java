@@ -6,7 +6,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,16 @@ public class MainActivity extends ActionBarActivity {
     public static int ENTRYURLTAG = 1;
     private static String fb6Url = "http://fb6.beuth-hochschule.de";
     private static List<LehrkraftnewsEntry> entries;
+
+    public static List<LehrkraftnewsEntry> getAllEntries() {
+        return allEntries;
+    }
+
+    public static void setAllEntries(List<LehrkraftnewsEntry> allEntries) {
+        MainActivity.allEntries = allEntries;
+    }
+
+    private static List<LehrkraftnewsEntry> allEntries;
     private static LehrkraftnewsAdapter adapter;
 
     @Override
@@ -26,6 +39,7 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection Convert2Diamond
         entries = new ArrayList<LehrkraftnewsEntry>();
+        allEntries = new ArrayList<LehrkraftnewsEntry>();
 
         String lehrkraftnewsUrl = "http://fb6.beuth-hochschule.de/lehrkraftnews/message/";
         new LehrkraftnewsFetcher(this).execute(lehrkraftnewsUrl);
@@ -43,6 +57,55 @@ public class MainActivity extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+    public void addSourcesOnSpinner(List sources) {
+        sources.add(0, getString(R.string.all_news));
+
+        Spinner spinner = (Spinner) findViewById(R.id.filter_spinner);
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, sources);
+
+        spinnerAdapter.setDropDownViewResource(android.R.layout
+                .simple_spinner_dropdown_item);
+
+        spinner.setAdapter(spinnerAdapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            private List sources;
+
+            private AdapterView.OnItemSelectedListener init(List sources) {
+                this.sources = sources;
+                return this;
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another
+            }
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                String source = (String) sources.get(position);
+                List filteredEntries = new ArrayList<LehrkraftnewsEntry>();
+
+                if (source.equals(getString(R.string.all_news))) {
+                    filteredEntries.addAll(getAllEntries());
+                } else {
+                    for (LehrkraftnewsEntry entry : getAllEntries()) {
+                        if (entry.getSource().equals(source)) {
+                            filteredEntries.add(entry);
+                        }
+                    }
+                }
+
+                getEntries().clear();
+                getEntries().addAll(filteredEntries);
+                getAdapter().notifyDataSetChanged();
+            }
+        }.init(sources));
+
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

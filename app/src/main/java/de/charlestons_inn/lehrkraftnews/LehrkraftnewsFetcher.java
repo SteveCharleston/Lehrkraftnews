@@ -10,7 +10,11 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
 * Created by steven on 17.04.15.
@@ -74,7 +78,18 @@ class LehrkraftnewsFetcher
     @Override
     protected void onPostExecute(List<LehrkraftnewsEntry> newsEntries) {
         super.onPostExecute(newsEntries);
+
+        SortedSet sources = new TreeSet<String>(); // retains alphebtical order
+
+        for (LehrkraftnewsEntry entry : newsEntries) {
+            sources.add(entry.getSource());
+        }
+
+        ArrayList sourcesArray = new ArrayList<String>(sources);
+        mainActivity.addSourcesOnSpinner(sourcesArray);
+
         mainActivity.getEntries().addAll(newsEntries);
+        mainActivity.getAllEntries().addAll(newsEntries);
         mainActivity.getAdapter().notifyDataSetChanged();
         //TextView text = (TextView) findViewById(R.id.main_text);
         //text.setText(doc.toString());

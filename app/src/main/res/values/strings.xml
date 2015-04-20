@@ -3,12 +3,15 @@
 
     <string name="action_settings">Settings</string>
     <item name="URLENTRY" type="id" />
+    <item name="SUBSCRIBEPROF" type="id" />
     <string name="title_activity_detailed_lehrkraftnews">
         DetailedLehrkraftnewsActivity
     </string>
 
     <string name="filter">Filter:</string>
     <string name="all_news">Alle Nachrichten</string>
+    <string name="subscribe">Prof abbonieren</string>
+    <string name="unsubscribe">Lösche Abo</string>
 
     <string name="hello_world">Hello world!</string>
 </resources>

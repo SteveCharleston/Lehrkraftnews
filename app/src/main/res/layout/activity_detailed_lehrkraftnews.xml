@@ -14,15 +14,29 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/detailed_lehrkraftnews"
-            android:padding="5dp"
-            android:text="Hallo Wald"
-            android:background="@color/beuth_blue"
-            android:textColor="@color/white"
-            android:textSize="12dp"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/detailed_lehrkraftnews"
+                android:padding="5dp"
+                android:text="Hallo Wald"
+                android:background="@color/beuth_blue"
+                android:textColor="@color/white"
+                android:textSize="12dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/subscribe"
+                android:text="@string/subscribe"
+                android:onClick="toggleSubscription"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
     </ScrollView>
 

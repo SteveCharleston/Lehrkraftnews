@@ -17,14 +17,15 @@ import java.util.List;
  * Created by steven on 17.04.15.
  */
 public class detailedLehrkraftnewsFetcher
-    extends AsyncTask<String, String, String> {
+    extends AsyncTask<String, String, LehrkraftnewsEntry> {
         private MainActivity mainActivity;
 
         public detailedLehrkraftnewsFetcher(MainActivity mainActivity) {
             this.mainActivity = mainActivity;
         }
 
-        protected String doInBackground(String... url) {
+        protected LehrkraftnewsEntry doInBackground(String... url) {
+            LehrkraftnewsEntry newsEntry = new LehrkraftnewsEntry();
             Document doc = new Document(url[0]);
 
             try {
@@ -41,16 +42,27 @@ public class detailedLehrkraftnewsFetcher
             Element newsMessage = detailedEntry.get(13);
             HtmlToPlainText htmlToPlainText = new HtmlToPlainText();
 
-            return htmlToPlainText.getPlainText(newsMessage);
+            String validity = detailedEntry.get(9).text();
+            String source = detailedEntry.get(5).text();
+            String message = htmlToPlainText.getPlainText(newsMessage);
+
+            newsEntry.setValidityDate(validity);
+            newsEntry.setSource(source);
+            newsEntry.setMessage(message);
+
+            return newsEntry;
 
         }
 
         @Override
-        protected void onPostExecute(String newsMessage) {
-            super.onPostExecute(newsMessage);
+        protected void onPostExecute(LehrkraftnewsEntry newsEntry) {
+            super.onPostExecute(newsEntry);
 
             Intent intent = new Intent(mainActivity, DetailedLehrkraftnewsActivity.class);
-            intent.putExtra("newsMessage", newsMessage);
+
+            intent.putExtra("newsMessage", newsEntry.getMessage());
+            intent.putExtra("newsSource", newsEntry.getSource());
+            intent.putExtra("newsValidity", newsEntry.getValidityDate());
             mainActivity.startActivity(intent);
         }
     }

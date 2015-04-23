@@ -1,13 +1,18 @@
 package de.charlestons_inn.lehrkraftnews;
 
+import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -19,7 +24,10 @@ public class MainActivity extends ActionBarActivity {
 
     public static int ENTRYURLTAG = 1;
     private static String fb6Url = "http://fb6.beuth-hochschule.de";
+    private static String lehrkraftnewsUrl = "http://fb6.beuth-hochschule" +
+            ".de/lehrkraftnews/message/";
     private static List<LehrkraftnewsEntry> entries;
+    public Menu mymenu;
 
     public static List<LehrkraftnewsEntry> getAllEntries() {
         return allEntries;
@@ -41,7 +49,6 @@ public class MainActivity extends ActionBarActivity {
         entries = new ArrayList<LehrkraftnewsEntry>();
         allEntries = new ArrayList<LehrkraftnewsEntry>();
 
-        String lehrkraftnewsUrl = "http://fb6.beuth-hochschule.de/lehrkraftnews/message/";
         new LehrkraftnewsFetcher(this).execute(lehrkraftnewsUrl);
 
         ListView lehrkraftnewsEntries
@@ -55,6 +62,8 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        mymenu = menu;
+
         return true;
     }
 
@@ -114,12 +123,36 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_refresh:
+                LayoutInflater inflater = (LayoutInflater) getSystemService(
+                        Context.LAYOUT_INFLATER_SERVICE);
 
-        return super.onOptionsItemSelected(item);
+                ImageView iv = (ImageView) inflater.inflate(
+                        R.layout.iv_refresh, null);
+
+                Animation rotation = AnimationUtils.loadAnimation(this,
+                        R.anim.rotate_refresh);
+                rotation.setRepeatCount(Animation.INFINITE);
+                iv.startAnimation(rotation);
+                item.setActionView(iv);
+
+                new LehrkraftnewsFetcher(this).execute(lehrkraftnewsUrl);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void resetUpdateSpinner() {
+        MenuItem m = mymenu.findItem(R.id.action_refresh);
+
+        if (m.getActionView() != null) {
+            m.getActionView().clearAnimation();
+            m.setActionView(null);
+        }
     }
 
     public List<LehrkraftnewsEntry> getDummyData() {
@@ -146,6 +179,9 @@ public class MainActivity extends ActionBarActivity {
         newsEntries.add(third);
 
         return newsEntries;
+    }
+
+    public void click_refresh(View v) {
     }
 
     public static List<LehrkraftnewsEntry> getEntries() {

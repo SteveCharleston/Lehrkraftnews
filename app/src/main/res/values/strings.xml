@@ -12,6 +12,7 @@
     <string name="all_news">Alle Nachrichten</string>
     <string name="subscribe">Prof abbonieren</string>
     <string name="unsubscribe">Lösche Abo</string>
+    <string name="action_refresh">Aktualisieren</string>
 
     <string name="hello_world">Hello world!</string>
 </resources>

@@ -1,7 +1,14 @@
 package de.charlestons_inn.lehrkraftnews;
 
+import android.content.ClipData;
+import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -88,8 +95,12 @@ class LehrkraftnewsFetcher
         ArrayList sourcesArray = new ArrayList<String>(sources);
         mainActivity.addSourcesOnSpinner(sourcesArray);
 
+        mainActivity.getEntries().clear();
+        mainActivity.getAllEntries().clear();
+
         mainActivity.getEntries().addAll(newsEntries);
         mainActivity.getAllEntries().addAll(newsEntries);
+
         mainActivity.getAdapter().notifyDataSetChanged();
         //TextView text = (TextView) findViewById(R.id.main_text);
         //text.setText(doc.toString());
